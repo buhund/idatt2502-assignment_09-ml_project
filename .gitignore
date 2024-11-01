@@ -1,0 +1,160 @@
+# Operating System-specific
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear when using macOS on external drives
+.Spotlight-V100
+.Trashes
+
+# KDE / Kubuntu (Linux)
+.directory
+*.kate-swp
+*.swp
+.cache/
+.local/share/Trash/
+
+# General backup files
+*~
+*.bak
+*.backup
+*.swp
+*.swo
+*.tmp
+
+# Editor-related
+.vscode/
+*.code-workspace
+
+# JetBrains IDEs
+# User-specific configurations
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/vcs.xml
+.idea/jsLibraryMappings.xml
+.idea/sqlDataSources.xml
+.idea/dataSources/
+.idea/dataSources.ids
+.idea/dataSources.xml
+.idea/sqldialects.xml
+.idea/dynamic.xml
+.idea/targetFolder.xml
+.idea/uiDesigner.xml
+.idea/usage.statistics.xml
+.idea/contentModel.xml
+.idea/graph/
+.idea/dbnavigator.xml
+
+# Folder for project-specific metadata
+.idea/modules.xml
+.idea/*.iml
+.idea/*.iws
+.idea/assetWizardSettings.xml
+
+# Logs
+.idea/logs/
+
+# Other JetBrains-generated files
+*.iws
+out/
+.idea/
+
+# JetBrains Project-specific files
+*.iml
+*.ipr
+
+# Compilation results
+out/
+build/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+*.eggs/
+*.whl
+*.manifest
+*.spec
+
+# Virtual environments
+env/
+venv/
+ENV/
+VENV/
+pip-wheel-metadata/
+*.env
+*.venv
+
+# PyTorch and machine learning-specific
+
+# Model checkpoints
+*.ckpt
+*.h5
+*.pt
+*.pth
+checkpoints/
+models/
+
+# TensorBoard log files
+runs/
+logs/
+events.out.tfevents.*
+
+# Dataset files (if downloading datasets)
+data/
+datasets/
+
+# Experiment results
+*.log
+*.csv
+*.tsv
+*.json
+
+# Intermediate files used by experiments
+*.npy
+*.npz
+*.hdf5
+
+# Machine learning frameworks caches
+.cache/
+.saved_models/
+tfhub_modules/
+tfhub_cache/
+torch_cache/
+torch_extensions/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Colab-specific
+colab-tmp/
+drive/MyDrive/Colab\ Notebooks/
+
+# Backup & temp files
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+
+# macOS trash directory
+.Trashes
+
+# Linux trash directory
+.local/share/Trash/
+
+# JetBrains tools generated during code analysis
+*.class
