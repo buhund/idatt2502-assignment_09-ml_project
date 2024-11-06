@@ -5,12 +5,17 @@ from wrappers import apply_wrappers
 from agent import Agent
 import torch
 import os
+from torch.utils.tensorboard import SummaryWriter # Check model progress by running "tensorboard --logdir=runs" in terminal
 
+# Environment and Hyperparameters
 ENV_NAME = 'SuperMarioBros-1-1-v0'
 SAVE_PATH = "mario_ddqn_checkpoint.pth"
 SHOULD_TRAIN = True
 DISPLAY = True
 NUM_OF_EPISODES = 50_000
+
+# Initialize TensorBoard
+writer = SummaryWriter(log_dir="runs/mario_ddqn")
 
 print("****************** STARTING MARIO DOUBLE DEEP Q NETWORK ******************")
 env = gym_super_mario_bros.make(ENV_NAME, render_mode='human' if DISPLAY else 'rgb_array', apply_api_compatibility=True)
@@ -34,6 +39,8 @@ try:
     for i in range(NUM_OF_EPISODES):
         done = False
         state, _ = env.reset()
+        total_reward = 0  # Track the total reward for each episode
+        
         while not done:
             action = agent.choose_action(state)
             new_state, reward, done, truncated, info = env.step(action)
@@ -41,8 +48,12 @@ try:
             agent.store_in_memory(state, action, reward, new_state, done)
             agent.learn()
             state = new_state
+            total_reward += reward  # Accumulate reward for this episode
 
-        print(f"Episode {i + 1} completed.")
+        # Log metrics to TensorBoard
+        writer.add_scalar("Reward/episode", total_reward, i + 1)
+        writer.add_scalar("Epsilon/episode", agent.epsilon, i + 1)
+        print(f"Episode {i + 1} completed with total reward: {total_reward}.")
 
         # Save progress after each episode
         torch.save({
@@ -64,6 +75,10 @@ finally:
         'learn_step_counter': agent.learn_step_counter
     }, SAVE_PATH)
     print(f"Progress saved to {SAVE_PATH}")
+    
+    # Close TensorBoard writer
+    writer.close()
+    print("TensorBoard data saved.")
 
 env.close()
 print("Training finished, environment closed.")
