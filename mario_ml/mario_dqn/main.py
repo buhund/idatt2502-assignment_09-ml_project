@@ -1,49 +1,69 @@
-import concurrent.futures
 import gym_super_mario_bros
 from gym_super_mario_bros.actions import RIGHT_ONLY
 from nes_py.wrappers import JoypadSpace
 from wrappers import apply_wrappers
 from agent import Agent
-
-# Toggle between 'rgb_array' for no display and 'human' for real-time display
-#RENDER_MODE = 'rgb_array'
-RENDER_MODE = 'human'
+import torch
+import os
 
 ENV_NAME = 'SuperMarioBros-1-1-v0'
-NUM_INSTANCES = 1  # Set to 1 for single instance when using `human` mode, increase if `rgb_array`
+SAVE_PATH = "mario_dqn_checkpoint.pth"
+SHOULD_TRAIN = True
+DISPLAY = True
+NUM_OF_EPISODES = 50_000
 
-def run_instance(instance_id, display=False):
-    print("****************** STARTING MARIO DEEP Q NETWORK ******************")
-    env = gym_super_mario_bros.make(ENV_NAME, render_mode=RENDER_MODE, apply_api_compatibility=True)
-    env = JoypadSpace(env, RIGHT_ONLY)
-    env = apply_wrappers(env)
+print("****************** STARTING MARIO DEEP Q NETWORK ******************")
+env = gym_super_mario_bros.make(ENV_NAME, render_mode='human' if DISPLAY else 'rgb_array', apply_api_compatibility=True)
+env = JoypadSpace(env, RIGHT_ONLY)
+env = apply_wrappers(env)
 
-    agent = Agent(input_dims=env.observation_space.shape, num_actions=env.action_space.n)
+agent = Agent(input_dims=env.observation_space.shape, num_actions=env.action_space.n)
 
-    for episode in range(100):  # Adjust number of episodes
+# Optionally load previous progress if starting from a checkpoint
+if os.path.exists(SAVE_PATH):
+    checkpoint = torch.load(SAVE_PATH, weights_only=True)
+    agent.online_network.load_state_dict(checkpoint['model_state_dict'])
+    agent.target_network.load_state_dict(checkpoint['target_state_dict'])
+    agent.epsilon = checkpoint['epsilon']
+    agent.learn_step_counter = checkpoint['learn_step_counter']
+    print("Loaded previous checkpoint.")
+else:
+    print("No checkpoint found, starting fresh.")
+
+try:
+    for i in range(NUM_OF_EPISODES):
         done = False
         state, _ = env.reset()
         while not done:
             action = agent.choose_action(state)
             new_state, reward, done, truncated, info = env.step(action)
-
-            # Capture the frame if in 'rgb_array' mode, but do nothing with it
-            if RENDER_MODE == 'rgb_array':
-                current_frame = env.render()  # Returns an RGB array, can use for debugging if needed
-
-            # Store experience and train the agent
+            
             agent.store_in_memory(state, action, reward, new_state, done)
             agent.learn()
             state = new_state
 
-        print(f"Instance {instance_id} - Episode {episode + 1} completed.")
+        print(f"Episode {i + 1} completed.")
 
-    env.close()
+        # Save progress after each episode
+        torch.save({
+            'model_state_dict': agent.online_network.state_dict(),
+            'target_state_dict': agent.target_network.state_dict(),
+            'epsilon': agent.epsilon,
+            'learn_step_counter': agent.learn_step_counter
+        }, SAVE_PATH)
 
-# Ensuring multiprocessing is only run in the main context
-if __name__ == '__main__':
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        futures = [
-            executor.submit(run_instance, i, display=(RENDER_MODE == 'human' and i == 0))
-            for i in range(NUM_INSTANCES)
-        ]
+except KeyboardInterrupt:
+    print("Manual interrupt detected. Saving progress before exit...")
+
+finally:
+    # Ensure the final save upon interruption or completion
+    torch.save({
+        'model_state_dict': agent.online_network.state_dict(),
+        'target_state_dict': agent.target_network.state_dict(),
+        'epsilon': agent.epsilon,
+        'learn_step_counter': agent.learn_step_counter
+    }, SAVE_PATH)
+    print(f"Progress saved to {SAVE_PATH}")
+
+env.close()
+print("Training finished, environment closed.")
