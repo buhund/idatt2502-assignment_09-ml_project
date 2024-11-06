@@ -1,0 +1,25 @@
+# From DQN
+pip==21
+numpy==1.24.2
+#gym-super-mario-bros
+tensordict
+torch
+torchaudio
+torchvision
+torchrl
+lz4
+wheel==0.38.0
+setuptools==65.5.0
+
+# Patenro/Super-Mario-Bros-AI-Training-and-Evaluation
+gym-super-mario-bros==7.3.0
+opencv-python
+matplotlib
+pandas
+pytz
+nes-py
+gym-super-mario-bros==7.3.0
+gymnasium
+sb3_contrib==1.8.0
+stable-baselines3==1.8.0
+gym==0.21.0
