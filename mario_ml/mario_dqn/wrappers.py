@@ -22,6 +22,6 @@ class SkipFrame(Wrapper):
 def apply_wrappers(env):
     env = SkipFrame(env, skip=4) # Num of frames to apply one action to
     env = ResizeObservation(env, shape=84) # Resize frame from 240x256 to 84x84
-    env = GrayScaleObservation(env)
+    env = GrayScaleObservation(env) # Gray scale image to reduce data
     env = FrameStack(env, num_stack=4, lz4_compress=True) # May need to change lz4_compress to False if issues arise
     return env
