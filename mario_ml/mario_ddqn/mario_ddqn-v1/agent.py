@@ -1,7 +1,6 @@
 import torch
 import numpy as np
 from agent_nn import AgentNN
-
 from tensordict import TensorDict
 from torchrl.data import TensorDictReplayBuffer, LazyMemmapStorage
 
@@ -14,7 +13,7 @@ class Agent:
                  epsilon=1.0, 
                  eps_decay=0.99999975, 
                  eps_min=0.1, 
-                 replay_buffer_capacity=150_000, 
+                 replay_buffer_capacity=150_000,
                  batch_size=32, 
                  sync_network_rate=10000):
         
@@ -37,23 +36,17 @@ class Agent:
         # Optimizer and loss
         self.optimizer = torch.optim.Adam(self.online_network.parameters(), lr=self.lr)
         self.loss = torch.nn.MSELoss()
-        # self.loss = torch.nn.SmoothL1Loss() # Feel free to try this loss function instead!
 
-        # Replay buffer
+        # Replay buffer with LazyMemmapStorage
         storage = LazyMemmapStorage(replay_buffer_capacity)
         self.replay_buffer = TensorDictReplayBuffer(storage=storage)
 
     def choose_action(self, observation):
         if np.random.random() < self.epsilon:
             return np.random.randint(self.num_actions)
-        # Passing in a list of numpy arrays is slower than creating a tensor from a numpy array
-        # Hence the `np.array(observation)` instead of `observation`
-        # observation is a LIST of numpy arrays because of the LazyFrame wrapper
-        # Unqueeze adds a dimension to the tensor, which represents the batch dimension
         observation = torch.tensor(np.array(observation), dtype=torch.float32) \
                         .unsqueeze(0) \
                         .to(self.online_network.device)
-        # Grabbing the index of the action that's associated with the highest Q-value
         return self.online_network(observation).argmax().item()
     
     def decay_epsilon(self):
@@ -93,13 +86,14 @@ class Agent:
 
         states, actions, rewards, next_states, dones = [samples[key] for key in keys]
 
-        predicted_q_values = self.online_network(states) # Shape is (batch_size, n_actions)
+        predicted_q_values = self.online_network(states)
         predicted_q_values = predicted_q_values[np.arange(self.batch_size), actions.squeeze()]
 
-        # Max returns two tensors, the first one is the maximum value, the second one is the index of the maximum value
-        target_q_values = self.target_network(next_states).max(dim=1)[0]
-        # The rewards of any future states don't matter if the current state is a terminal state
-        # If done is true, then 1 - done is 0, so the part after the plus sign (representing the future rewards) is 0
+        # DDQN Implementation: Action selection by online network, evaluation by target network
+        next_state_actions = self.online_network(next_states).argmax(dim=1)
+        target_q_values = self.target_network(next_states)[np.arange(self.batch_size), next_state_actions]
+
+        # Update target values for terminal states
         target_q_values = rewards + self.gamma * target_q_values * (1 - dones.float())
 
         loss = self.loss(predicted_q_values, target_q_values)

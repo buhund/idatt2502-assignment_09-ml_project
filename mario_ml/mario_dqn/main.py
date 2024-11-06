@@ -13,6 +13,7 @@ ENV_NAME = 'SuperMarioBros-1-1-v0'
 NUM_INSTANCES = 1  # Set to 1 for single instance when using `human` mode, increase if `rgb_array`
 
 def run_instance(instance_id, display=False):
+    print("****************** STARTING MARIO DEEP Q NETWORK ******************")
     env = gym_super_mario_bros.make(ENV_NAME, render_mode=RENDER_MODE, apply_api_compatibility=True)
     env = JoypadSpace(env, RIGHT_ONLY)
     env = apply_wrappers(env)
