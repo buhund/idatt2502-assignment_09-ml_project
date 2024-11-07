@@ -18,23 +18,23 @@ from config import ACTOR_PATH, CRITIC_PATH
 class PPOAgent:
     def __init__(
             self,
-            in_dim,
+            input_dimensions,
             num_actions,
-            lr=3e-4,
+            learning_rate=3e-4,
             gamma=0.99,
             epsilon=0.2,
-            lam=0.95,
+            lambda_param=0.95,
             entropy_coef=0.01,
     ):
         """Initializes the PPOAgent with actor and critic networks, along with hyperparameters for training.
 
         Args:
-            in_dim (tuple): Input dimensions for the CNN, representing the state space.
+            input_dimensions (tuple): Input dimensions for the CNN, representing the state space.
             num_actions (int): Number of possible actions in the action space.
-            lr (float): Learning rate for both actor and critic optimizers.
+            learning_rate (float): Learning rate for both actor and critic optimizers.
             gamma (float): Discount factor for future rewards, controlling the importance of future rewards.
             epsilon (float): Clipping parameter for PPO, controlling the degree of policy update restriction.
-            lam (float): GAE (Generalized Advantage Estimation) lambda parameter, used in advantage calculation.
+            lambda_param (float): GAE (Generalized Advantage Estimation) lambda parameter, used in advantage calculation.
             entropy_coef (float): Coefficient for entropy regularization, encouraging exploration in the policy.
 
         Attributes:
@@ -47,13 +47,13 @@ class PPOAgent:
         """
         self.gamma = gamma
         self.epsilon = epsilon
-        self.lam = lam
+        self.lam = lambda_param
         self.entropy_coef = entropy_coef
         self.device = DEVICE
-        self.actor = CNNNetwork(in_dim, out_dim=num_actions).to(self.device)
-        self.critic = CNNNetwork(in_dim, out_dim=1).to(self.device)
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=lr)
-        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=lr)
+        self.actor = CNNNetwork(input_dimensions, out_dim=num_actions).to(self.device)
+        self.critic = CNNNetwork(input_dimensions, out_dim=1).to(self.device)
+        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=learning_rate)
+        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=learning_rate)
 
         print(f"Training on: {self.device}")
 
