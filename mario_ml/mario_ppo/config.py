@@ -31,7 +31,7 @@ NUM_EPISODES = 10_000
 RENDER_MODE = True # True for visual gameplay, False for no visuals.
 
 # With video recording enabled, the simulations strike out at about 100 episodes. Set to False to run longer.
-# TODO Make video not crash, record only every 1000? 5000?
+# TODO Make video not crash, record only every 1000 episodes?
 ENABLE_VIDEO_RECORDING = False # True for video recoding (ffmpeg), False for no recording.
 
 # Use GPU/Cuda if available. Else fallback to good 'ol CPU
