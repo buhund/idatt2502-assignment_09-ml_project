@@ -13,13 +13,13 @@ device = DEVICE
 
 
 def load_trained_agent(in_dim, num_actions, actor_path, critic_path):
-    """Initialize a PPOAgent and load the trained actor and critic model.
+    """Initialize a PPOAgent and load the trained actor and critic weights weights.
 
     Args:
         in_dim (tuple): Input dimensions (shape) for the CNN.
         num_actions (int): Number of actions in the action space.
-        actor_path (str): Path to the saved actor model.
-        critic_path (str): Path to the saved critic model.
+        actor_path (str): Path to the saved actor weights weights.
+        critic_path (str): Path to the saved critic weights weights.
 
     Returns:
         PPOAgent: The PPO agent with loaded weights on the appropriate device (GPU if available).
@@ -27,7 +27,7 @@ def load_trained_agent(in_dim, num_actions, actor_path, critic_path):
     """
     agent = PPOAgent(in_dim, num_actions)
 
-    # Load the trained model weights to the device
+    # Load the trained weights weights to the device
     agent.actor.load_state_dict(torch.load(actor_path, map_location=device))
     agent.critic.load_state_dict(torch.load(critic_path, map_location=device))
 
@@ -69,3 +69,7 @@ def run_instance(agent, env, num_episodes=NUM_EPISODES, render=RENDER_MODE):
         print(f"Episode {episode + 1}/{num_episodes} - Total Reward: {total_reward} - Epsilon: {agent.epsilon}")
 
     env.close()
+
+
+
+

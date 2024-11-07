@@ -165,17 +165,17 @@ class PPOAgent:
             critic_loss.backward()
             self.critic_optimizer.step()
 
-    def save(self, path="model"):
+    def save(self, path="weights"):
         """Saves the actor and critic networks to specified files.
 
         Args:
-            path (str): Path to save the model weights. Will create directory if it doesn’t exist.
+            path (str): Path to save the weights weights. Will create directory if it doesn’t exist.
 
         """
         os.makedirs(path, exist_ok=True)
         torch.save(self.actor.state_dict(), os.path.join(path, "actor.pth"))
         torch.save(self.critic.state_dict(), os.path.join(path, "critic.pth"))
-        print(f"Model saved to {path}")
+        print(f"Model weights saved to {path}")
 
     def train(
             self, env, num_episodes, path="training_result", output=None, render=False
@@ -261,7 +261,7 @@ class PPOAgent:
 def main():
     """Sets up the environment and agent, then trains the agent.
 
-    Loads saved model weights if available, then trains the agent and saves the results.
+    Loads saved weights weights if available, then trains the agent and saves the results.
 
     Environment:
         Super Mario Bros environment is created using the `create_env` function.
@@ -287,5 +287,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
