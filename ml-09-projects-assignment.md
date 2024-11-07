@@ -1,8 +1,8 @@
-##                                                        
-
-# Om prosjektet
+# IDATT2501 Prosjektøving
 
 
+
+## Om prosjektet
 
 Studentene velger selv prosjektoppgave. Se under for foreslåtte problemstillinger.
 
