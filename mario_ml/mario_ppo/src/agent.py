@@ -26,7 +26,9 @@ class PPOAgent:
             lambda_param=0.95,
             entropy_coefficient=0.01,
     ):
-        """Initializes the PPOAgent with actor and critic networks, along with hyperparameters for training.
+        """Initializes the PPOAgent with actor and critic network weights, along with hyperparameters for training.
+            Weights are saved between runs, thus preserving the learned behaviors from one run to the next, allowing
+            the agent to start from what was learned earlier, instead of from scratch every time.
 
         Args:
             input_dimensions (tuple): Input dimensions for the CNN, representing the state space.
