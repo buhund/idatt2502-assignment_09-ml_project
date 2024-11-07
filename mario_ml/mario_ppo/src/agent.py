@@ -22,9 +22,9 @@ class PPOAgent:
             num_actions,
             learning_rate=3e-4,
             gamma=0.99,
-            epsilon=0.2,
+            epsilon=0.2, # Standard choice for PPO epsilon.
             lambda_param=0.95,
-            entropy_coef=0.01,
+            entropy_coefficient=0.01,
     ):
         """Initializes the PPOAgent with actor and critic networks, along with hyperparameters for training.
 
@@ -34,8 +34,12 @@ class PPOAgent:
             learning_rate (float): Learning rate for both actor and critic optimizers.
             gamma (float): Discount factor for future rewards, controlling the importance of future rewards.
             epsilon (float): Clipping parameter for PPO, controlling the degree of policy update restriction.
+                            In PPO, epsilon is a constant which defines a threshold for clipping during policy updates.
+                            With epsilon set to 0.2, this means that each policy update is restricted to within ±20% of 
+                            the old policy’s action probabilities. This prevents overly aggressive updates that might 
+                            otherwise lead to suboptimal behavior.
             lambda_param (float): GAE (Generalized Advantage Estimation) lambda parameter, used in advantage calculation.
-            entropy_coef (float): Coefficient for entropy regularization, encouraging exploration in the policy.
+            entropy_coefficient (float): Coefficient for entropy regularization, encouraging exploration in the policy.
 
         Attributes:
             actor (torch.nn.Module): The neural network representing the policy (actor).
@@ -47,8 +51,8 @@ class PPOAgent:
         """
         self.gamma = gamma
         self.epsilon = epsilon
-        self.lam = lambda_param
-        self.entropy_coef = entropy_coef
+        self.lambda_param = lambda_param
+        self.entropy_coefficient = entropy_coefficient
         self.device = DEVICE
         self.actor = CNNNetwork(input_dimensions, out_dim=num_actions).to(self.device)
         self.critic = CNNNetwork(input_dimensions, out_dim=1).to(self.device)
@@ -110,7 +114,7 @@ class PPOAgent:
                     - values[step]
             )
             # GAE formula for calculating advantage estimate
-            gae = delta + self.gamma * self.lam * (1 - dones[step]) * gae
+            gae = delta + self.gamma * self.lambda_param * (1 - dones[step]) * gae
             advantages.insert(0, gae)
             returns.insert(0, gae + values[step])
 
@@ -147,7 +151,7 @@ class PPOAgent:
             surr1 = ratios * advantages  # r_t * A
             surr2 = torch.clamp(ratios, 1 - self.epsilon, 1 + self.epsilon) * advantages
             actor_loss = -torch.min(surr1, surr2).mean()  # PPO clipped objective
-            actor_loss -= self.entropy_coef * entropy
+            actor_loss -= self.entropy_coefficient * entropy
 
             # Update actor network
             self.actor_optimizer.zero_grad()
