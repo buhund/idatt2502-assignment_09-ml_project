@@ -1,4 +1,4 @@
-# src/ppo/ppo_agent.py
+# src/agent.py
 
 import csv
 import os

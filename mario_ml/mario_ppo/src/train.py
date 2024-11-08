@@ -8,18 +8,17 @@ from config import ACTOR_PATH, CRITIC_PATH
 
 
 # Use GPU/Cuda if available. Else fallback to good 'ol CPU
-#device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 device = DEVICE
 
 
 def load_trained_agent(in_dim, num_actions, actor_path, critic_path):
-    """Initialize a PPOAgent and load the trained actor and critic weights weights.
+    """Initialize a PPOAgent and load the trained actor and critic model weights.
 
     Args:
         in_dim (tuple): Input dimensions (shape) for the CNN.
         num_actions (int): Number of actions in the action space.
-        actor_path (str): Path to the saved actor weights weights.
-        critic_path (str): Path to the saved critic weights weights.
+        actor_path (str): Path to the saved actor model weights.
+        critic_path (str): Path to the saved critic model weights.
 
     Returns:
         PPOAgent: The PPO agent with loaded weights on the appropriate device (GPU if available).

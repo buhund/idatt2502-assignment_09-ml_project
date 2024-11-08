@@ -1,4 +1,4 @@
-# src/main.py
+# main.py
 
 from src.environment import create_env
 from src.agent import PPOAgent
