@@ -1,4 +1,4 @@
-# src/ppo/ppo_agent.py
+# src/agent.py
 
 import csv
 import os
@@ -73,6 +73,9 @@ class PPOAgent:
         )
 
     def update(self, states, actions, old_log_probs, returns, advantages):
+        total_actor_loss = 0
+        total_critic_loss = 0
+
         for _ in range(4):  # Multiple epochs for each batch
             logits = self.actor(states)
             dist = Categorical(F.softmax(logits, dim=-1))
@@ -80,13 +83,11 @@ class PPOAgent:
             entropy = dist.entropy().mean()
 
             # Calculate PPO clipped objective
-            ratios = torch.exp(
-                log_probs - old_log_probs
-            )  # r_t(theta) = exp(log_pi - log_pi_old)
+            ratios = torch.exp(log_probs - old_log_probs)  # r_t(theta) = exp(log_pi - log_pi_old)
             surr1 = ratios * advantages  # r_t * A
             surr2 = torch.clamp(ratios, 1 - self.epsilon, 1 + self.epsilon) * advantages
             actor_loss = -torch.min(surr1, surr2).mean()  # PPO clipped objective
-            actor_loss -= self.entropy_coefficient * entropy
+            actor_loss -= self.entropy_coefficient * entropy  # Add entropy bonus to encourage exploration
 
             # Update actor network
             self.actor_optimizer.zero_grad()
@@ -95,14 +96,22 @@ class PPOAgent:
 
             # Critic loss for value update
             values = self.critic(states).squeeze(-1)
-            critic_loss = F.mse_loss(
-                values, returns
-            )  # Mean Squared Error for value function
+            critic_loss = F.mse_loss(values, returns) # Mean Squared Error for value function
 
             # Update critic network
             self.critic_optimizer.zero_grad()
             critic_loss.backward()
             self.critic_optimizer.step()
+
+            # Accumulated losses for tracking
+            total_actor_loss += actor_loss.item()
+            total_critic_loss += critic_loss.item()
+
+        # Average losses over the epochs
+        avg_actor_loss = total_actor_loss / 4 # Loss is averaged over the 4 training epochs in each batch
+        avg_critic_loss = total_critic_loss / 4 # Loss is averaged over the 4 training epochs in each batch
+
+        return avg_actor_loss, avg_critic_loss
 
     def save(self, path=WEIGHTS_PATH): # WEIGHTS_PATH = src/weights
         os.makedirs(path, exist_ok=True)
@@ -223,6 +232,13 @@ class PPOAgent:
         self.actor.load_state_dict(checkpoint['actor_state_dict'])
         self.critic.load_state_dict(checkpoint['critic_state_dict'])
         print(f"Checkpoint loaded from episode {episode}")
+
+
+    def update_loss_tracking(self, states, actions, old_log_probs, returns, advantages):
+        """Wrapper around update to track and return actor and critic losses."""
+        avg_actor_loss, avg_critic_loss = self.update(states, actions, old_log_probs, returns, advantages)
+        return avg_actor_loss, avg_critic_loss
+
 
 
 def main():

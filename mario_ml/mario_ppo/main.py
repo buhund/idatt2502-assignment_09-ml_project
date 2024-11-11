@@ -40,16 +40,22 @@ def main():
     finally:
         # Final save on completion or interruption
         last_completed_episode = last_episode if 'last_episode' in locals() else start_episode
+        latest_reward = total_reward  # Assuming total_reward is available from the last episode
+        latest_loss = episode_loss  # Assuming episode_loss is available from the last episode
+
         agent.save()  # Calls agent.save() which saves to ACTOR_PATH and CRITIC_PATH
         torch.save({
             'actor_state_dict': agent.actor.state_dict(),
             'critic_state_dict': agent.critic.state_dict(),
-            'episode': start_episode
+            'episode': last_completed_episode,
+            'latest_reward': latest_reward,
+            'latest_loss': latest_loss
         }, checkpoint_file)
         print(f"Progress saved to {checkpoint_file}")
 
         env.close()
         print("Environment closed.")
+
 
 if __name__ == "__main__":
     main()
