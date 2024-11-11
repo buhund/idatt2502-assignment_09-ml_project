@@ -10,15 +10,10 @@ import os
 from src.environment import create_env
 from src.agent import PPOAgent
 from torch.utils.tensorboard import SummaryWriter
-from config import ENV_NAME, DEVICE, CHECKPOINT_PATH, NUM_TEST_EPISODES
+from config import ENV_NAME, DEVICE, CHECKPOINT_PATH, NUM_TEST_EPISODES, RENDER_MODE
 
 
-def run_test_instance(agent, env, num_episodes=NUM_TEST_EPISODES):
-    # Funny guy
-    print(f"Testing Mode Enabled.\n"
-          f"WARNING! Initializing Black Hole Device start-up sequence.\n"
-          f"WARNING! Please stand back. Local micro-anomalies may occur during testing.\n")
-
+def run_test_instance(agent, env, num_episodes=NUM_TEST_EPISODES, render=RENDER_MODE):
     writer = SummaryWriter(log_dir="runs/mario_ppo_testing")
     csv_path = os.path.join("logs", "testing_metrics.csv")
 
@@ -29,13 +24,16 @@ def run_test_instance(agent, env, num_episodes=NUM_TEST_EPISODES):
             state = env.reset()
             done = False
             total_reward = 0
-            start_time = 0
+            start_time = None
             x_pos = 0
             flag_get = False
 
             while not done:
+                if render:
+                    env.render()
+
                 state_tensor = torch.tensor(state, dtype=torch.float32).unsqueeze(0).to(agent.device)
-                action, _, _ = agent.get_action(state_tensor)
+                action, _, _ = agent.select_action(state_tensor)
                 next_state, reward, done, info = env.step(action)
                 total_reward += reward
 
@@ -65,7 +63,6 @@ def run_test_instance(agent, env, num_episodes=NUM_TEST_EPISODES):
                   f"x_pos: {x_pos}, Flag_Get: {flag_get}, Total Time: {total_time}")
 
     writer.close()
-    env.close()
     print(f"Testing complete and environment closed.")
 
 
@@ -93,7 +90,7 @@ def main():
               f"Please train the agent before running in Testing Mode")
         return
 
-    run_test_instance(agent, env, num_episodes=NUM_TEST_EPISODES)
+    run_test_instance(agent, env, num_episodes=NUM_TEST_EPISODES, render=RENDER_MODE)
 
 if __name__ == '__main__':
     main()
