@@ -6,8 +6,11 @@ WORLD = 1
 STAGE = 1
 ENV_VERSION = "v0"
 ENV_NAME = f"SuperMarioBros-{WORLD}-{STAGE}-{ENV_VERSION}"
-NUM_EPISODES = 20
 RENDER_MODE = True # True for visual gameplay, False for no visuals.
+
+# Number of episodes to run
+NUM_EPISODES = 20
+NUM_TEST_EPISODES = 10
 
 # With video recording enabled, the simulations strike out at about 100 episodes. Set to False to run longer.
 # TODO Make video not crash, record only every 1000 episodes?
