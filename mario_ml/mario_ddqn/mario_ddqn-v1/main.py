@@ -49,6 +49,7 @@ def train():
         writer.add_scalar("Metrics/Flag_Get", flag_get, episode)
         writer.add_scalar("Metrics/Time_Used", time_used, episode)
 
+
     try:
         for i in range(start_episode, NUM_OF_EPISODES + 1):
             done = False
