@@ -25,14 +25,23 @@ def main():
         start_episode = checkpoint.get('episode', 1)
         print(f"Resuming from episode {start_episode}\n"
               f"{checkpoint_file}")
+
+        # Check if `start_episode` exceeds or matches `NUM_EPISODES`
+        if start_episode >= NUM_EPISODES:
+            print(f"Episode {start_episode} reached or exceeded NUM_EPISODES ({NUM_EPISODES}). Restarting from episode 1.")
+            start_episode = 1  # Reset to start from the beginning
+
     else:
         print(f"No checkpoint found at {checkpoint_file}\n"
               f"Starting from scratch.")
 
+    last_episode, latest_reward, latest_loss = start_episode, 0.0, 0.0  # Defaults if run_instance is not completed
+
     try:
         # Run the training instance, starting from the last saved episode
-        last_episode = run_instance(agent, env, num_episodes=NUM_EPISODES, render=RENDER_MODE, start_episode=start_episode)
-        #run_instance(agent, env, start_episode=start_episode)
+        last_episode, latest_reward, latest_loss = run_instance(agent, env, num_episodes=NUM_EPISODES, render=RENDER_MODE, start_episode=start_episode)
+        #last_episode = run_instance(agent, env, num_episodes=NUM_EPISODES, render=RENDER_MODE, start_episode=start_episode)
+        # #run_instance(agent, env, start_episode=start_episode)
 
     except KeyboardInterrupt:
         print("Manual interrupt detected. Saving progress before exit...")
@@ -40,9 +49,8 @@ def main():
     finally:
         # Final save on completion or interruption
         last_completed_episode = last_episode if 'last_episode' in locals() else start_episode
-        latest_reward = total_reward  # Assuming total_reward is available from the last episode
-        latest_loss = episode_loss  # Assuming episode_loss is available from the last episode
 
+        # Save the model and checkpoint data
         agent.save()  # Calls agent.save() which saves to ACTOR_PATH and CRITIC_PATH
         torch.save({
             'actor_state_dict': agent.actor.state_dict(),

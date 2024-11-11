@@ -45,6 +45,7 @@ def run_instance(agent, env, num_episodes=NUM_EPISODES, render=RENDER_MODE, star
     # Initialize CSV file for logging
     csv_path = os.path.join("logs", "training_metrics.csv")
     os.makedirs("logs", exist_ok=True)
+
     with open(csv_path, mode="w", newline="") as csv_file:
         writer_csv = csv.writer(csv_file)
         writer_csv.writerow(["Episode", "Reward", "Actor_Loss", "Critic_Loss"])  # CSV headers
@@ -53,6 +54,7 @@ def run_instance(agent, env, num_episodes=NUM_EPISODES, render=RENDER_MODE, star
         state = env.reset()
         done = False
         total_reward = 0
+        episode_loss = 0
         states, actions, log_probs, rewards, values, dones = [], [], [], [], [], []
 
         while not done:
@@ -62,7 +64,7 @@ def run_instance(agent, env, num_episodes=NUM_EPISODES, render=RENDER_MODE, star
             next_state, reward, done, info = env.step(action)
             total_reward += reward
 
-            # Store step information
+            # Store and store step information data for PPO update
             states.append(state_tensor)
             actions.append(torch.tensor(action, device=agent.device))
             log_probs.append(log_prob)
@@ -71,6 +73,7 @@ def run_instance(agent, env, num_episodes=NUM_EPISODES, render=RENDER_MODE, star
             dones.append(done)
 
             state = next_state
+
             if render:
                 env.render()
 
@@ -91,6 +94,7 @@ def run_instance(agent, env, num_episodes=NUM_EPISODES, render=RENDER_MODE, star
 
         # Update the agent and retrieve average losses
         avg_actor_loss, avg_critic_loss = agent.update_loss_tracking(states, actions, old_log_probs, returns, advantages)
+        episode_loss = avg_actor_loss + avg_critic_loss
 
         # Log metrics to TensorBoard
         writer.add_scalar("Reward/Episode", total_reward, episode)
@@ -106,7 +110,7 @@ def run_instance(agent, env, num_episodes=NUM_EPISODES, render=RENDER_MODE, star
               f"Actor Loss: {avg_actor_loss:.4f}, Critic Loss: {avg_critic_loss:.4f}")
 
     writer.close()  # Close the TensorBoard writer
-    return episode + 1  # Return the last completed episode
+    return episode + 1, total_reward, episode_loss
 
 
 
