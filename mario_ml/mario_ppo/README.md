@@ -1,8 +1,16 @@
 # Super Mario Bros PPO
 
+**University project assignment, IDATT2502 Applied Machine Learning, BIDATA (Computer Engineer B.Sc., NTNU) 2024.**
+
+Implementation of the Proximal Policy Optimization (PPO) algorithm for training a machine learning in Super Mario Bros.
+
+The primary goal of the implementation is to compare it to other ML algorithms, specifically DQN and DDQN in order to determine which has the better performance in learning to play Super Mario Bros.
+
+All implementations being compared uses the same environment, `SuperMarioBros-1-1-v0` and `SimpleMovements`.
 
 
-## Installation
+
+### Installation and requirements
 
 
 
@@ -10,6 +18,14 @@ Create a new environment with Python 3.10.15 (Conda):
 
 ```
 conda create -n mario_ppo python=3.10
+```
+
+
+
+Activate the new conda environment:
+
+```
+conda activate mario_ppo
 ```
 
 
@@ -22,9 +38,17 @@ pip install -r requirements.txt
 
 
 
+#### TensorBoard:
+
+To enable logging via TensorBoard, run the following from the `mario_ppo` dirctory:
+
+```
+tensorboard --logdir=logs/ppo
+```
 
 
-### License: GPLv3
+
+
 
 
 

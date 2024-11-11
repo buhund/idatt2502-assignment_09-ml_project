@@ -155,7 +155,7 @@ class Monitor:
             )
         except FileNotFoundError as e:
             raise RuntimeError(
-                "ffmpeg not found. Please ensure ffmpeg is in the specified directory."
+                f"ffmpeg not found. Please check if ffmpeg is in the specified directory: {ffmpeg_path}."
             ) from e
 
     def record(self, image_array):

@@ -1,4 +1,4 @@
-# src/agent.py
+# src/ppo/ppo_agent.py
 
 import csv
 import os
@@ -11,7 +11,7 @@ from torch.distributions import Categorical
 from src.environment import create_env
 from src.network import CNNNetwork
 from src.utils import get_unique_filename
-from config import ENV_NAME, RENDER_MODE, DEVICE
+from config import ENV_NAME, RENDER_MODE, DEVICE, WEIGHTS_PATH
 from config import ACTOR_PATH, CRITIC_PATH
 
 
@@ -26,31 +26,7 @@ class PPOAgent:
             lambda_param=0.95,
             entropy_coefficient=0.01,
     ):
-        """Initializes the PPOAgent with actor and critic network weights, along with hyperparameters for training.
-            Weights are saved between runs, thus preserving the learned behaviors from one run to the next, allowing
-            the agent to start from what was learned earlier, instead of from scratch every time.
 
-        Args:
-            input_dimensions (tuple): Input dimensions for the CNN, representing the state space.
-            num_actions (int): Number of possible actions in the action space.
-            learning_rate (float): Learning rate for both actor and critic optimizers.
-            gamma (float): Discount factor for future rewards, controlling the importance of future rewards.
-            epsilon (float): Clipping parameter for PPO, controlling the degree of policy update restriction.
-                            In PPO, epsilon is a constant which defines a threshold for clipping during policy updates.
-                            With epsilon set to 0.2, this means that each policy update is restricted to within ±20% of 
-                            the old policy’s action probabilities. This prevents overly aggressive updates that might 
-                            otherwise lead to suboptimal behavior.
-            lambda_param (float): GAE (Generalized Advantage Estimation) lambda parameter, used in advantage calculation.
-            entropy_coefficient (float): Coefficient for entropy regularization, encouraging exploration in the policy.
-
-        Attributes:
-            actor (torch.nn.Module): The neural network representing the policy (actor).
-            critic (torch.nn.Module): The neural network representing the value function (critic).
-            actor_optimizer (torch.optim.Optimizer): Optimizer for the actor network.
-            critic_optimizer (torch.optim.Optimizer): Optimizer for the critic network.
-            device (torch.device): Device to run computations on (GPU if available, else CPU).
-
-        """
         self.gamma = gamma
         self.epsilon = epsilon
         self.lambda_param = lambda_param
@@ -61,61 +37,33 @@ class PPOAgent:
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=learning_rate)
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=learning_rate)
 
-        print(f"Training on: {self.device}")
+        print(f"Running on: {self.device}")
 
     def select_action(self, state):
-        """Selects an action based on the current policy, returning both the action and its log probability.
 
-        Args:
-            state (torch.Tensor): The current state observation.
-
-        Returns:
-            action (int): The selected action.
-            log_prob (torch.Tensor): Log probability of the selected action.
-            value (torch.Tensor): Estimated value of the current state from the critic.
-
-        """
         state = state.to(self.device)
         with torch.no_grad():
-            logits = self.actor(state)
+            action_logits = self.actor(state)
             value = self.critic(state).squeeze(-1)
-            probs = F.softmax(logits, dim=-1)
-            dist = Categorical(probs)
-            action = dist.sample()
-            log_prob = dist.log_prob(action)
-        return action.item(), log_prob, value
+            action_probabilities = F.softmax(action_logits, dim=-1)
+            action_distribution = Categorical(action_probabilities)
+            action = action_distribution.sample()
+            log_probability = action_distribution.log_prob(action)
+        return action.item(), log_probability, value
 
     def compute_gae(self, rewards, values, next_value, dones):
-        """Calculates the advantages and returns using Generalized Advantage Estimation (GAE).
 
-        Formula:
-            delta_t = reward + gamma * V(s') - V(s)
-            advantage_t = delta_t + gamma * lambda * advantage_t+1
-
-        Args:
-            rewards (list): Collected rewards from the episode.
-            values (list): State values collected from the critic for each step in the episode.
-            next_value (float): Value of the next state from the critic.
-            dones (list): Boolean indicators for each step, where True indicates the end of an episode.
-
-        Returns:
-            advantages (torch.Tensor): Calculated advantages for each step in the episode.
-            returns (torch.Tensor): Target returns for each step in the episode.
-
-        """
         values = values + [next_value]
         gae = 0
         advantages = []
         returns = []
 
         for step in reversed(range(len(rewards))):
-            # Calculate delta_t for advantage estimation
             delta = (
                     rewards[step]
                     + self.gamma * values[step + 1] * (1 - dones[step])
                     - values[step]
             )
-            # GAE formula for calculating advantage estimate
             gae = delta + self.gamma * self.lambda_param * (1 - dones[step]) * gae
             advantages.insert(0, gae)
             returns.insert(0, gae + values[step])
@@ -125,21 +73,6 @@ class PPOAgent:
         )
 
     def update(self, states, actions, old_log_probs, returns, advantages):
-        """Performs a PPO update on the actor and critic networks.
-
-        PPO Loss Formula:
-            L_clip = E[min(r_t(theta) * A, clip(r_t(theta), 1 - epsilon, 1 + epsilon) * A)]
-            Critic loss = (returns - V(s))^2
-            Total loss = actor_loss + 0.5 * critic_loss - entropy_coef * entropy
-
-        Args:
-            states (torch.Tensor): Batch of observed states.
-            actions (torch.Tensor): Batch of actions taken.
-            old_log_probs (torch.Tensor): Log probabilities of actions taken, from previous policy.
-            returns (torch.Tensor): Computed returns for each state-action pair.
-            advantages (torch.Tensor): Computed advantages for each state-action pair.
-
-        """
         for _ in range(4):  # Multiple epochs for each batch
             logits = self.actor(states)
             dist = Categorical(F.softmax(logits, dim=-1))
@@ -171,31 +104,20 @@ class PPOAgent:
             critic_loss.backward()
             self.critic_optimizer.step()
 
-    def save(self, path="weights"):
-        """Saves the actor and critic networks to specified files.
-
-        Args:
-            path (str): Path to save the weights weights. Will create directory if it doesn’t exist.
-
-        """
+    def save(self, path=WEIGHTS_PATH): # WEIGHTS_PATH = src/weights
         os.makedirs(path, exist_ok=True)
-        torch.save(self.actor.state_dict(), os.path.join(path, "actor.pth"))
-        torch.save(self.critic.state_dict(), os.path.join(path, "critic.pth"))
-        print(f"Model weights saved to {path}")
+        actor_path = os.path.join(path, "actor.pth") # Save Actor to path src/weights/actor.pth
+        critic_path = os.path.join(path, "critic.pth") # Save Critic to path src/weights/critic.pth
+        torch.save(self.actor.state_dict(), actor_path)
+        torch.save(self.critic.state_dict(), critic_path)
+        print(f"Model weights saved.\n"
+              f"Actor: {actor_path}\n"
+              f"Critic: {critic_path}")
 
     def train(
             self, env, num_episodes, path="training_result", output=None, render=False
     ):
-        """Trains the agent in the environment using PPO.
 
-        Args:
-            env (gym.Env): The environment in which the agent will be trained.
-            num_episodes (int): Number of episodes to train the agent.
-            path (str): Path to save training results as a CSV file.
-            output (str): Filename for the output CSV file. If file exists, a new unique name is created.
-            render (bool): If True, renders the environment after each action.
-
-        """
         os.makedirs(path, exist_ok=True)
 
         if output:
@@ -263,18 +185,48 @@ class PPOAgent:
                         [episode + 1, episode_reward, 1 if got_the_flag else 0]
                     )
 
+    """
+    # Saves a checkpoint of the actor and critic at a specific training episode.
+    def save_checkpoint(self, path, episode):
+           
+            os.makedirs(path, exist_ok=True)
+            actor_path = os.path.join(path, f"actor_checkpoint_{episode}.pth")
+            critic_path = os.path.join(path, f"critic_checkpoint_{episode}.pth")
+            torch.save(self.actor.state_dict(), actor_path)
+            torch.save(self.critic.state_dict(), critic_path)
+            print(f"Checkpoint saved at episode {episode}")
+    """
+
+    def save_checkpoint(self, path, episode):
+        os.makedirs(path, exist_ok=True)
+        checkpoint = {
+            'actor_state_dict': self.actor.state_dict(),
+            'critic_state_dict': self.critic.state_dict(),
+            'episode': episode
+        }
+        torch.save(checkpoint, os.path.join(path, f"checkpoint_{episode}.pth"))
+        print(f"Checkpoint saved at episode {episode}")
+
+    """
+    # Loads a checkpoint for the actor and critic from a specific training episode.
+    def load_checkpoint(self, path, episode):
+        actor_path = os.path.join(path, f"actor_checkpoint_{episode}.pth")
+        critic_path = os.path.join(path, f"critic_checkpoint_{episode}.pth")
+        self.actor.load_state_dict(torch.load(actor_path, map_location=self.device))
+        self.critic.load_state_dict(torch.load(critic_path, map_location=self.device))
+        print(f"Checkpoint loaded from episode {episode}")
+    """
+
+    def load_checkpoint(self, path, episode):
+        checkpoint_path = os.path.join(path, f"checkpoint_{episode}.pth")
+        checkpoint = torch.load(checkpoint_path, map_location=self.device)
+        self.actor.load_state_dict(checkpoint['actor_state_dict'])
+        self.critic.load_state_dict(checkpoint['critic_state_dict'])
+        print(f"Checkpoint loaded from episode {episode}")
+
 
 def main():
-    """Sets up the environment and agent, then trains the agent.
 
-    Loads saved weights weights if available, then trains the agent and saves the results.
-
-    Environment:
-        Super Mario Bros environment is created using the `create_env` function.
-
-    Agent:
-        Loads actor and critic networks from saved weights if available, trains for 10 episodes, then saves.
-    """
     env = create_env(map=ENV_NAME)
     sample_observation = env.reset()
     print("Sample observation shape:", sample_observation.shape)
