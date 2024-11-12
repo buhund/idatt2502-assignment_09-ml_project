@@ -9,13 +9,16 @@ ENV_NAME = f"SuperMarioBros-{WORLD}-{STAGE}-{ENV_VERSION}"
 RENDER_MODE = True # True for visual gameplay, False for no visuals.
 
 # Number of episodes to run
-NUM_EPISODES = 20
-NUM_TEST_EPISODES = 10
+NUM_EPISODES = 10
+NUM_TEST_EPISODES = 1_000
 
 # With video recording enabled, the simulations strike out at about 100 episodes. Set to False to run longer.
 # TODO Make video not crash, record only every 1000 episodes?
 # TODO Or just remove recording entirely
 ENABLE_VIDEO_RECORDING = False # True for video recoding (ffmpeg), False for no recording.
+VIDE_RECORDING_INTERVAL_TRAINING = 2000 # Record every 2000 episode of 30_000 = 15 videos
+VIDE_RECORDING_INTERVAL_TESTING = 100 # Record every 100 episode of 1_000 = 10 videos
+VIDEO_OUTPUT_PATH = "logs/video"
 
 # Use GPU/Cuda if available. Else fallback to good 'ol CPU
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -27,7 +30,7 @@ WEIGHTS_PATH = "src/weights/"
 
 # Checkpoint settings
 CHECKPOINT_PATH = "src/checkpoints"
-CHECKPOINT_INTERVAL = 20  # Save every 100 episodes
+CHECKPOINT_INTERVAL = 5  # Save every 100 episodes
 
 # Model Configs
 class PPOConfig:

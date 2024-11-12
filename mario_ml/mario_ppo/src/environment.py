@@ -2,18 +2,15 @@
 # TODO Probably make this into two classes: environment and wrapper
 
 import collections
-import os
-import subprocess as sp
-
 import cv2
 import gym
 import gym_super_mario_bros
 import numpy as np
-import torch
 from nes_py.wrappers import JoypadSpace
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
-from config import ENV_NAME, RENDER_MODE
-from config import ENABLE_VIDEO_RECORDING
+from config import ENV_NAME, ENABLE_VIDEO_RECORDING, VIDEO_OUTPUT_PATH
+from src.utils.video_recorder import VideoRecorder
+
 
 class ActionRepeat(gym.Wrapper):
     """Repeats the action for a specified number of frames (default = 4)."""
@@ -109,87 +106,23 @@ class NormalizePixels(gym.ObservationWrapper):
 
 
 
+# Snipped out Monitor. Moved to video_recorder.py as class VideoRecorder
 
-class Monitor:
-    """Handles video recording for the environment using ffmpeg."""
-
-    def __init__(self, width, height, saved_path="output"):
-        if not ENABLE_VIDEO_RECORDING:
-            self.pipe = None  # No video recording if disabled, i.e. config/ENABLE_VIDEO_RECORDING = False
-            return
-
-        ffmpeg_path = "/usr/bin/ffmpeg"
-        if not os.path.isfile(ffmpeg_path):
-            raise RuntimeError("ffmpeg not found. Please ensure ffmpeg is installed.")
-        if not os.path.exists(saved_path):
-            os.makedirs(saved_path)
-
-        output_file = os.path.join(saved_path, f"{ENV_NAME}.mp4")
-        self.command = [
-            ffmpeg_path,
-            "-y",
-            "-f",
-            "rawvideo",
-            "-vcodec",
-            "rawvideo",
-            "-s",
-            f"{width}x{height}",
-            "-pix_fmt",
-            "rgb24",
-            "-r",
-            "60",
-            "-i",
-            "-",
-            "-an",
-            "-vcodec",
-            "mpeg4",
-            output_file,
-        ]
-
-        try:
-            self.pipe = sp.Popen(
-                self.command,
-                stdin=sp.PIPE,
-                stderr=sp.PIPE,
-                executable=ffmpeg_path,
-            )
-        except FileNotFoundError as e:
-            raise RuntimeError(
-                f"ffmpeg not found. Please check if ffmpeg is in the specified directory: {ffmpeg_path}."
-            ) from e
-
-    def record(self, image_array):
-        if not self.pipe:
-            return  # Skip recording if video recording is disabled
-
-        try:
-            self.pipe.stdin.write(image_array.tobytes())
-        except BrokenPipeError as e:
-            error_output = self.pipe.stderr.read().decode()
-            print("ffmpeg error:", error_output)
-            raise RuntimeError(
-                "ffmpeg terminated unexpectedly. Check the ffmpeg command and input frames."
-            ) from e
-
-    def close(self):
-        if self.pipe:
-            self.pipe.stdin.close()
-            self.pipe.wait()
 
 
 
 class CustomReward(gym.RewardWrapper):
     """A custom reward wrapper that modifies rewards based on game score and level completion."""
 
-    def __init__(self, env=None, monitor=None):
+    def __init__(self, env=None, video_recorder=None):
         super().__init__(env)
-        self.monitor = monitor
+        self.video_recorder = video_recorder
         self.curr_score = 0
 
     def step(self, action):
         state, reward, done, info = self.env.step(action)
-        if self.monitor:
-            self.monitor.record(state)
+        if self.video_recorder:
+            self.video_recorder.record(state)
 
         score_diff = info.get("score", 0) - self.curr_score
         reward += score_diff / 40.0
@@ -210,11 +143,13 @@ class CustomReward(gym.RewardWrapper):
 def create_env(map=ENV_NAME, action_repeat=4, output_path=None):
     """Sets up the Super Mario Bros environment with customized wrappers."""
     env = JoypadSpace(gym_super_mario_bros.make(map), SIMPLE_MOVEMENT)
-    if output_path is not None:
-        monitor = Monitor(width=256, height=240, saved_path=output_path)
-    else:
-        monitor = None
-    env = CustomReward(env, monitor=monitor)
+
+    # Conditionally create the VideoRecorder based on ENABLE_VIDEO_RECORDING
+    video_recorder = None
+    if ENABLE_VIDEO_RECORDING:
+        video_recorder = VideoRecorder(width=256, height=240, saved_path=VIDEO_OUTPUT_PATH)
+
+    env = CustomReward(env, video_recorder=video_recorder)
     env = ActionRepeat(env, action_repeat)
     env = ResizeAndGrayscale(env)
     env = ConvertToTensor(env)
