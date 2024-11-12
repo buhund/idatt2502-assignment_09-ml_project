@@ -1,4 +1,4 @@
-# src/wrapper.py
+# src/wrappers.py
 
 import collections
 import cv2
@@ -127,3 +127,8 @@ class CustomReward(gym.RewardWrapper):
     def reset(self, **kwargs):
         self.curr_score = 0
         return self.env.reset(**kwargs)
+
+
+
+
+
