@@ -14,8 +14,11 @@ from config import ENV_NAME, DEVICE, CHECKPOINT_PATH, NUM_TEST_EPISODES, RENDER_
 
 
 def run_test_instance(agent, env, num_episodes=NUM_TEST_EPISODES, render=RENDER_MODE):
-    writer = SummaryWriter(log_dir="runs/mario_ppo_testing")
-    csv_path = os.path.join("logs", "testing_metrics.csv")
+    writer = SummaryWriter(log_dir="logs/tensorboard/mario_ppo_testing")
+    os.makedirs("logs/tensorboard", exist_ok=True)
+
+    csv_path = os.path.join("logs/metrics", "testing_metrics.csv")
+    os.makedirs("logs/metrics", exist_ok=True)
 
     with open(csv_path, mode="w") as csv_file:
         csv_file.write("Episode,Total_Reward,x_pos,Flag_Get,Total_Time\n")  # CSV headers

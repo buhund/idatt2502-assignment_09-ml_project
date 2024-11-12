@@ -40,11 +40,12 @@ def run_instance(agent, env, num_episodes=NUM_EPISODES, render=RENDER_MODE, star
     """Run the emulator with the specified agent and environment, logging metrics."""
 
     # Initialize TensorBoard writer
-    writer = SummaryWriter(log_dir="runs/mario_ppo_training")
+    writer = SummaryWriter(log_dir="logs/tensorboard/mario_ppo_training")
+    os.makedirs("logs/tensorboard", exist_ok=True)
 
     # Initialize CSV file for logging
-    csv_path = os.path.join("logs", "training_metrics.csv")
-    os.makedirs("logs", exist_ok=True)
+    csv_path = os.path.join("logs/metrics", "training_metrics.csv")
+    os.makedirs("logs/metrics", exist_ok=True)
 
     with open(csv_path, mode="w", newline="") as csv_file:
         writer_csv = csv.writer(csv_file)
