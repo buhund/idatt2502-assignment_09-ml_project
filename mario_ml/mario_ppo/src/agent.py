@@ -194,17 +194,6 @@ class PPOAgent:
                         [episode + 1, episode_reward, 1 if got_the_flag else 0]
                     )
 
-    """
-    # Saves a checkpoint of the actor and critic at a specific training episode.
-    def save_checkpoint(self, path, episode):
-           
-            os.makedirs(path, exist_ok=True)
-            actor_path = os.path.join(path, f"actor_checkpoint_{episode}.pth")
-            critic_path = os.path.join(path, f"critic_checkpoint_{episode}.pth")
-            torch.save(self.actor.state_dict(), actor_path)
-            torch.save(self.critic.state_dict(), critic_path)
-            print(f"Checkpoint saved at episode {episode}")
-    """
 
     def save_checkpoint(self, path, episode):
         os.makedirs(path, exist_ok=True)
@@ -216,15 +205,6 @@ class PPOAgent:
         torch.save(checkpoint, os.path.join(path, f"checkpoint_{episode}.pth"))
         print(f"Checkpoint saved at episode {episode}")
 
-    """
-    # Loads a checkpoint for the actor and critic from a specific training episode.
-    def load_checkpoint(self, path, episode):
-        actor_path = os.path.join(path, f"actor_checkpoint_{episode}.pth")
-        critic_path = os.path.join(path, f"critic_checkpoint_{episode}.pth")
-        self.actor.load_state_dict(torch.load(actor_path, map_location=self.device))
-        self.critic.load_state_dict(torch.load(critic_path, map_location=self.device))
-        print(f"Checkpoint loaded from episode {episode}")
-    """
 
     def load_checkpoint(self, path, episode):
         checkpoint_path = os.path.join(path, f"checkpoint_{episode}.pth")

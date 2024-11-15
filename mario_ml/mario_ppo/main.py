@@ -4,7 +4,7 @@ import os
 from src.environment import create_env
 from src.agent import PPOAgent
 from src.test import run_test_instance
-from src.train import run_instance
+from src.train import run_training_instance
 from config import ENV_NAME, RENDER_MODE, CHECKPOINT_PATH, NUM_EPISODES, NUM_TEST_EPISODES, DEVICE
 
 
@@ -47,7 +47,7 @@ def main():
 
         try:
             # Run the training instance, starting from the last saved episode
-            last_episode, latest_reward, latest_loss = run_instance(agent, env, num_episodes=NUM_EPISODES, render=RENDER_MODE, start_episode=start_episode)
+            last_episode, latest_reward, latest_loss = run_training_instance(agent, env, num_episodes=NUM_EPISODES, render=RENDER_MODE, start_episode=start_episode)
 
         except KeyboardInterrupt:
             print("Manual interrupt detected. Saving progress before exit...")

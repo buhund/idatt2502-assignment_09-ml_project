@@ -9,12 +9,15 @@ ENV_NAME = f"SuperMarioBros-{WORLD}-{STAGE}-{ENV_VERSION}"
 RENDER_MODE = True # True for visual gameplay, False for no visuals.
 
 # Number of episodes to run
-NUM_EPISODES = 10
-NUM_TEST_EPISODES = 1_000
+NUM_EPISODES = 50_000 # Episodes during training
+NUM_TEST_EPISODES = 1_000 # Episodes during testing
+# Checkpoint settings
+CHECKPOINT_INTERVAL = 1_000  # Checkpoint every X episodes
+CHECKPOINT_PATH = "src/checkpoints"
 
 # With video recording enabled, the simulations strike out at about 100 episodes. Set to False to run longer.
-# TODO Make video not crash, record only every 1000 episodes?
-# TODO Or just remove recording entirely
+# Make video not crash, record only every 1000 episodes?
+# Or just remove recording entirely
 ENABLE_VIDEO_RECORDING = False # True for video recoding (ffmpeg), False for no recording.
 VIDE_RECORDING_INTERVAL_TRAINING = 2000 # Record every 2000 episode of 30_000 = 15 videos
 VIDE_RECORDING_INTERVAL_TESTING = 100 # Record every 100 episode of 1_000 = 10 videos
@@ -28,9 +31,7 @@ ACTOR_PATH = "src/weights/actor.pth" # Actor controls how our agent behaves (pol
 CRITIC_PATH = "src/weights/critic.pth" # Critic measures how good the action taken is (value-based method).
 WEIGHTS_PATH = "src/weights/"
 
-# Checkpoint settings
-CHECKPOINT_PATH = "src/checkpoints"
-CHECKPOINT_INTERVAL = 5  # Save every 100 episodes
+
 
 # Model Configs
 class PPOConfig:
