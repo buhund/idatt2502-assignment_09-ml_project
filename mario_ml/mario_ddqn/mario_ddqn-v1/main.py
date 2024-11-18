@@ -11,7 +11,7 @@ from torch.utils.tensorboard import SummaryWriter  # tensorboard --logdir=runs
 ENV_NAME = 'SuperMarioBros-1-1-v0'
 SAVE_PATH = "mario_ddqn_checkpoint.pth"
 DISPLAY = True
-NUM_OF_EPISODES = 20_000
+NUM_OF_EPISODES = 40_000
 
 # Initialize TensorBoard
 writer = SummaryWriter(log_dir="runs/mario_ddqn")
@@ -74,7 +74,7 @@ def train():
             time_used = 400 - info.get("time", 400)
             log_metrics(i, total_reward, max_x_pos, flag_get, time_used)
 
-            print(f"Episode {i} | Total Reward: {total_reward} | Max X Position: {max_x_pos} | Flag: {flag_get} | Time Used: {time_used}")
+            print(f"Episode {i} | Total Reward: {total_reward} | Max X Position: {max_x_pos} | Flag: {flag_get} | Time Used: {time_used} | Epsilon: {agent.epsilon}")
 
             if i % 100 == 0:
                 torch.save({
@@ -106,10 +106,12 @@ def train():
     print("Training finished, environment closed.")
 
 # Evaluation mode function (runs independently)
-def evaluate(num_episodes=1000):
+def evaluate(num_episodes):
     print("Starting Evaluation Mode")
     start_episode = load_checkpoint(agent)
     agent.epsilon = 0.0  # Disable exploration for evaluation
+    agent.online_network.eval()
+    agent.target_network.eval()
 
     for i in range(1, num_episodes + 1):
         done = False
@@ -133,4 +135,4 @@ def evaluate(num_episodes=1000):
 
 # Uncomment one of the following to either train or evaluate independently.
 train()
-# evaluate(num_episodes=1000)
+#evaluate(num_episodes=2)
