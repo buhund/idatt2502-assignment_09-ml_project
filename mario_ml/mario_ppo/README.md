@@ -6,7 +6,7 @@ Implementation of the Proximal Policy Optimization (PPO) algorithm for training 
 
 The primary goal of the implementation is to compare it to other ML algorithms, first and foremost DDQN, in order to determine which has the better performance in learning to play Super Mario Bros.
 
-All implementations being compared uses the same environment, `SuperMarioBros-1-1-v0` and `SimpleMovements`.
+All implementations being compared uses the same environment, `SuperMarioBros-1-1-v0` and `SIMPLE_MOVEMENT`.
 
 
 
