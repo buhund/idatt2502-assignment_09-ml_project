@@ -20,10 +20,10 @@ class PPOAgent:
             self,
             input_dimensions,
             num_actions,
-            learning_rate=3e-4,
-            gamma=0.99,
-            epsilon=0.2, # Standard choice for PPO epsilon.
-            lambda_param=0.95,
+            learning_rate=1e-4,
+            gamma=0.90,
+            epsilon=0.2, # Clip rate
+            lambda_param=0.98,
             entropy_coefficient=0.01,
     ):
 

@@ -40,7 +40,7 @@ class PPOConfig:
     epsilon = 0.2                   # Aka Clip Rate. Standard choice for PPO epsilon constant
     gamma = 0.99                    # Discount factor
     n_steps = 128                   # Steps per update
-    entropy_coef = 0.01                 # Entropy coefficient to encourage exploration
+    entropy_coef = 0.01             # Entropy coefficient to encourage exploration
     vf_coef = 0.5                   # Value function coefficient in loss calculation
     max_grad_norm = 0.5             # Gradient clipping
     gae_lambda = 0.95               # Generalized Advantage Estimation discount
