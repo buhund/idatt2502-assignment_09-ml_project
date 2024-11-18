@@ -2,7 +2,9 @@
 
 import gym_super_mario_bros
 from nes_py.wrappers import JoypadSpace
+from gym_super_mario_bros.actions import RIGHT_ONLY
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
+from gym_super_mario_bros.actions import COMPLEX_MOVEMENT
 from config import ENV_NAME, ENABLE_VIDEO_RECORDING, VIDEO_OUTPUT_PATH
 from src.utils.video_recorder import VideoRecorder
 from src.wrappers import (ActionRepeat, ResizeAndGrayscale,
