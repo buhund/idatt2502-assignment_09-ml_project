@@ -55,11 +55,11 @@ mario_ppo
 
 Create a new environment with Python 3.10.15 (Conda). For best compatibility, you may want to create one env for each algorithm, e.g. `mario_ppo` and `mario_ddqn`.
 
-```bash
+```
 conda create -n mario_ppo python=3.10
 ```
 
-```bash
+```
 conda create -n mario_ddqn python=3.10
 ```
 
@@ -67,16 +67,27 @@ conda create -n mario_ddqn python=3.10
 
 Activate the new conda environment for either PPO or DDQN:
 
-```bash
-conda activate mario_ml
+```
+conda activate mario_ppo
 ```
 
+```
+conda activate mario_ddqn
+```
+
+
+
 Install required packages and dependencies
-```bash
+
+```
 pip install -r requirements.txt
 ```
 
-### Running the agent (PPO)
+
+
+## Running the agents
+
+### PPO
 
 The agent have two modes: `train` and `test`.
 
@@ -88,41 +99,40 @@ Testing mode will load the `actor.pth` and `critic.pth`, and then run the agent 
 
 The scripts run via terminal arguments. By invoking `python` on `main.py` and setting the `--mode` flagwith `train` or `test` arguments.
 
+Navigate to the mario_ppo directory. From inside the main project directory, `idatt2502-assignment_09-ml_project`
+
+```
+cd mario_ppo/
+```
 
 
 ##### Training:
 
 ```bash
-§ --cwd--: mario_ppo (current working directory)
-
 python main.py --mode train
 ```
-
-
 
 ##### Testing:
 
 ```bash
-§ --cwd--: mario_ppo (current working directory)
-
 python main.py --mode test
 ```
 
 
 
-It can also be run in an IDE, e.g. PyCharm, by loading the .xml run config files in `.run/`
+#### IDE
 
-```bash
-/mario_ppo/.run/
-├── mario_ppo_test.run.xml
-└── mario_ppo_train.run.xml
-```
+Alternatively, run main.py with `--mode test` arguments through your preferred IDE.
 
 
 
+### DDQN
+
+Use your preferred IDE to run `main.py`
 
 
-#### Config
+
+## Config - PPO
 
 In `config.py`, you have to specify the parameters for the agent, especially the number of episodes for training and testing, as well as checkpoint interval.
 
@@ -149,7 +159,12 @@ To toggle displaying rendering, i.e. getting the window showing the agent playin
 - `False` to disable rendering.
 
 
+
 ## TensorBoard logging
+
+
+
+### PPO
 
 To enable logging via TensorBoard, run the following from the `mario_ppo` dirctory:
 
@@ -164,6 +179,12 @@ Testing logs
 ```bash
 tensorboard --logdir=logs/tensorboard/mario_ppo_testing/
 ```
+
+
+
+### DDQN
+
+
 
 ## Errors
 
