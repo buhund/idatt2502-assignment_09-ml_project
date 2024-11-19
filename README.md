@@ -23,7 +23,7 @@ For this project, the choice fell on testing two different algorithms, PPO and D
 
 - **Python 3.10**
 
-Python packaged and dependencies:
+Python packaged and dependencies for each algorithm implementation can be installed through `requirements.txt` inside each algorithm directory:
 
 ```
 pip install -r requirements.txt

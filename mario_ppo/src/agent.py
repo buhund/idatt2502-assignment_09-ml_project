@@ -10,7 +10,7 @@ from torch.distributions import Categorical
 
 from src.environment import create_env
 from src.network import CNNNetwork
-from src.utils.unique_filename import get_unique_filename
+from src.utils.unique_filename import create_unique_filename
 from config import ENV_NAME, RENDER_MODE, DEVICE, WEIGHTS_PATH
 from config import ACTOR_PATH, CRITIC_PATH
 
@@ -130,7 +130,7 @@ class PPOAgent:
         os.makedirs(path, exist_ok=True)
 
         if output:
-            output_file = get_unique_filename(path, output)
+            output_file = create_unique_filename(path, output)
             with open(os.path.join(path, output_file), mode="w", newline="") as file:
                 writer = csv.writer(file)
                 writer.writerow(["Episode", "Reward", "Got_Flag"])

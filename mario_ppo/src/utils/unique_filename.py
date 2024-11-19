@@ -2,9 +2,8 @@
 
 import os
 
-
-def get_unique_filename(path, filename):
-    """Returns a unique filename by appending a number if the file already exists."""
+def create_unique_filename(path, filename):
+    """Helper method for creating a unique file name, by appending a number if the file name already exists."""
     base, ext = os.path.splitext(filename)
     counter = 1
     new_filename = filename

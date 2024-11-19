@@ -7,7 +7,7 @@ from config import ENV_NAME, ENABLE_VIDEO_RECORDING
 
 
 class VideoRecorder:
-    """Handles video recording for the environment using ffmpeg."""
+    """Helper method for video recording while running the environment using ffmpeg."""
 
     def __init__(self, width, height, saved_path="output"):
         if not ENABLE_VIDEO_RECORDING:
@@ -44,7 +44,7 @@ class VideoRecorder:
             )
         except FileNotFoundError as e:
             raise RuntimeError(
-                f"ffmpeg not found. Please check if ffmpeg is in the specified directory: {ffmpeg_path}."
+                f"ffmpeg not found. Please check for ffmpeg installation in the specified directory: {ffmpeg_path}."
             ) from e
 
     def record(self, image_array):
