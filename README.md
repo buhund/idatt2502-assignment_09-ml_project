@@ -17,7 +17,39 @@ Project suggestions:
 
 For this project, the choice fell on testing two different algorithms, PPO and DDQN, on the [gym-super-mario-bros](https://pypi.org/project/gym-super-mario-bros/) environment by [Christian Kauten](https://pypi.org/user/kautenja/). The primary goal of the implementation is to compare the two algorithms, in order to determine which has the better performance in learning to play Super Mario Bros.
 
-### Installation and requirements
+
+
+## Requirements
+
+- **Python 3.10**
+
+Python packaged and dependencies:
+
+```
+pip install -r requirements.txt
+```
+
+## Installation
+
+1. Clone the repository:
+
+```
+git clone git@github.com:buhund/idatt2502-assignment_09-ml_project.git
+```
+
+Navigate to the project directory
+
+```
+cd idatt2502-assignment_09-ml_project
+```
+
+Then navigate to a algorithm subdirectory
+
+```
+mario_ddqn
+mario_dqn
+mario_ppo
+```
 
 
 
@@ -41,18 +73,6 @@ conda activate mario_ppo
 
 ```
 conda activate mario_ddqn
-```
-
-
-
-To install the required packaged, navigate to the directory `mario_ppo` 
-
-`cwd` (current working directory) `mario_ppo`:
-
-```bash
-§ --cwd--: mario_ppo (current working directory)
-
-pip install -r requirements.txt
 ```
 
 
