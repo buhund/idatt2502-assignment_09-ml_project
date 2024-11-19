@@ -43,7 +43,7 @@ Navigate to the project directory
 cd idatt2502-assignment_09-ml_project
 ```
 
-Then navigate to a algorithm subdirectory
+Then navigate to an algorithm subdirectory
 
 ```
 mario_ddqn
@@ -53,13 +53,13 @@ mario_ppo
 
 
 
-Create a new environment with Python 3.10.15 (Conda):
+Create a new environment with Python 3.10.15 (Conda). For best compatibility, you may want to create one env for each algorithm, e.g. `mario_ppo` and `mario_ddqn`.
 
 ```bash
 conda create -n mario_ppo python=3.10
 ```
 
-```
+```bash
 conda create -n mario_ddqn python=3.10
 ```
 
@@ -68,34 +68,15 @@ conda create -n mario_ddqn python=3.10
 Activate the new conda environment for either PPO or DDQN:
 
 ```bash
-conda activate mario_ppo
+conda activate mario_ml
 ```
 
-```
-conda activate mario_ddqn
-```
-
-
-
-#### TensorBoard
-
-To enable logging via TensorBoard, run the following from the `mario_ppo` dirctory:
-
-Training logs
-
+Install required packages and dependencies
 ```bash
-tensorboard --logdir=logs/tensorboard/mario_ppo_training/
+pip install -r requirements.txt
 ```
 
-Testing logs
-
-```bash
-tensorboard --logdir=logs/tensorboard/mario_ppo_testing/
-```
-
-
-
-### Running the agent
+### Running the agent (PPO)
 
 The agent have two modes: `train` and `test`.
 
@@ -109,7 +90,7 @@ The scripts run via terminal arguments. By invoking `python` on `main.py` and se
 
 
 
-**Training:**
+##### Training:
 
 ```bash
 § --cwd--: mario_ppo (current working directory)
@@ -119,7 +100,7 @@ python main.py --mode train
 
 
 
-**Testing:**
+##### Testing:
 
 ```bash
 § --cwd--: mario_ppo (current working directory)
@@ -168,6 +149,21 @@ To toggle displaying rendering, i.e. getting the window showing the agent playin
 - `False` to disable rendering.
 
 
+## TensorBoard logging
+
+To enable logging via TensorBoard, run the following from the `mario_ppo` dirctory:
+
+Training logs
+
+```bash
+tensorboard --logdir=logs/tensorboard/mario_ppo_training/
+```
+
+Testing logs
+
+```bash
+tensorboard --logdir=logs/tensorboard/mario_ppo_testing/
+```
 
 ## Errors
 
