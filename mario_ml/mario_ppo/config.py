@@ -9,7 +9,7 @@ ENV_NAME = f"SuperMarioBros-{WORLD}-{STAGE}-{ENV_VERSION}"
 RENDER_MODE = True # True for visual gameplay, False for no visuals.
 
 # Number of episodes to run
-NUM_EPISODES = 50_000 # Episodes during training
+NUM_EPISODES = 30_000 # Episodes during training
 NUM_TEST_EPISODES = 1_000 # Episodes during testing
 # Checkpoint settings
 CHECKPOINT_INTERVAL = 1_000  # Checkpoint every X episodes
@@ -37,7 +37,7 @@ WEIGHTS_PATH = "src/weights/"
 class PPOConfig:
     # PPO Hyperparameters
     learning_rate = 0.0003          # 3e-4
-    epsilon = 0.2                   # Aka Clip Rate. Standard choice for PPO epsilon constant
+    epsilon = 0.3                   # Aka Clip Rate. 0.20 = Standard choice for PPO epsilon constant
     gamma = 0.99                    # Discount factor
     n_steps = 128                   # Steps per update
     entropy_coef = 0.01             # Entropy coefficient to encourage exploration

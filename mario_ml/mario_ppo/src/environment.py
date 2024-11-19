@@ -12,7 +12,7 @@ from src.wrappers import (ActionRepeat, ResizeAndGrayscale,
                           NormalizePixels, CustomReward)
 
 
-def create_env(map=ENV_NAME, action_repeat=4, output_path=None):
+def create_env(map=ENV_NAME, frame_stack=4, output_path=None):
     """Sets up the Super Mario Bros environment with customized wrappers."""
     env = JoypadSpace(gym_super_mario_bros.make(map), SIMPLE_MOVEMENT)
 
@@ -22,7 +22,7 @@ def create_env(map=ENV_NAME, action_repeat=4, output_path=None):
         video_recorder = VideoRecorder(width=256, height=240, saved_path=VIDEO_OUTPUT_PATH)
 
     env = CustomReward(env, video_recorder=video_recorder)
-    env = ActionRepeat(env, action_repeat)
+    env = ActionRepeat(env, frame_stack)
     env = ResizeAndGrayscale(env)
     env = ConvertToTensor(env)
     env = ObservationBuffer(env, 4)
